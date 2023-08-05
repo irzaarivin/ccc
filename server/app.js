@@ -13,16 +13,25 @@ const db = require('./models');
 
 // DECLARE PASSPORT AUTH JSON WEBTOKEN BEARER SCHEMA
 const passport = require('passport');
-const passportJWT = require('passport-jwt');
-const JWTStrategy = passportJWT.Strategy;
-const ExtractJWT = passportJWT.ExtractJwt;
+const LocalStrategy = require('passport-local').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 const secretKey = "sangat_very_secret_key_banget_sekali";
+
+// Sinkronisasi model dengan database
+db.sequelize.sync()
+  .then(() => {
+    console.log('Database synced');
+  })
+  .catch((err) => {
+    console.error('Error syncing database: ', err);
+  });
 
 // CONFIGURE PASSPORT
 app.use(passport.initialize());
 const jwtOptions = {
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-  secretOrKey: jwtSecret,
+  secretOrKey: secretKey,
 };
 
 passport.use(
@@ -48,7 +57,7 @@ passport.use(
 
 passport.use(
   new JwtStrategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: secretKey,
   }, async (payload, done) => {
     try {
@@ -65,14 +74,14 @@ passport.use(
 );
 
 // CONFIGURE REDIS
-const redisClient = redis.createClient({
-  host: 'localhost',
-  port: 6379,
-});
+// const redisClient = redis.createClient({
+//   host: 'localhost',
+//   port: 6379,
+// });
 
-redisClient.on('error', (err) => {
-  console.error('Gagal terkoneksi ke Redis:', err);
-});
+// redisClient.on('error', (err) => {
+//   console.error('Gagal terkoneksi ke Redis:', err);
+// });
 
 // GROUPING AUTHENTICATED ROUTES
 app.use('/auth', passport.authenticate('jwt', { session: false }), (req, res, next) => {

@@ -1,23 +1,23 @@
 {
   "development": {
-    "username": "root",
-    "password": null,
-    "database": "ccc",
-    "host": "127.0.0.1",
+    "username": "codingcodingclub",
+    "password": "codingcodingclubccc",
+    "database": "db_ccc",
+    "host": "db4free.net",
     "dialect": "mysql"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "ccc",
-    "host": "127.0.0.1",
+    "username": "codingcodingclub",
+    "password": "codingcodingclubccc",
+    "database": "db_ccc",
+    "host": "db4free.net",
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "ccc",
-    "host": "127.0.0.1",
+    "username": "codingcodingclub",
+    "password": "codingcodingclubccc",
+    "database": "db_ccc",
+    "host": "db4free.net",
     "dialect": "postgres"
   }
 }
