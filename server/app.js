@@ -1,6 +1,8 @@
 // DECLARE EXPRESSJS
 const express = require('express');
 const app = express();
+const cors = require('cors');
+app.use(cors());
 
 // DECLARE CONTROLLERS
 const userController = require('./controllers/userController');
@@ -10,9 +12,15 @@ const redis = require('ioredis');
 
 // DECLARE SEQUELIZE DATABASE
 const db = require('./models');
+const User = db.User;
+
+// DECLARE BODY PARSER
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 // DECLARE PASSPORT AUTH JSON WEBTOKEN BEARER SCHEMA
 const passport = require('passport');
+const bcrypt = require('bcryptjs');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
@@ -84,22 +92,22 @@ passport.use(
 // });
 
 // GROUPING AUTHENTICATED ROUTES
-app.use('/auth', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  if (req.user) {
-    next();
-  } else {
-    res.status(404).json({ message: 'Lah kaga ada user bang' });
-  }
-});
+// app.use('/auth', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+//   if (req.user) {
+//     next();
+//   } else {
+//     res.status(404).json({ message: 'Lah kaga ada user bang' });
+//   }
+// });
 
 // CRUD USERS
-app.post('/login', userController.login);
-app.post('/auth/create/user', userController.register);
+app.post('/login', bodyParser.urlencoded({ extended: false }), userController.login);
+app.post('/create/user', bodyParser.urlencoded({ extended: false }), userController.register);
 app.get('/auth/me', userController.getAuthUser);
 app.put('/auth/me/update', userController.updateAuthUser);
-app.get('/auth/users', userController.getUsers);
-app.get('/auth/users/:id', userController.getUserById);
-app.get('/auth/users/email/:email', userController.getUserByEmail);
+app.get('/users', userController.getUsers);
+app.get('/users/:id', userController.getUserById);
+app.get('/users/email/:email', userController.getUserByEmail);
 app.delete('/auth/users/delete/:id', userController.deleteUserById);
 app.delete('/auth/users/delete/email/:email', userController.deleteUserByEmail);
 

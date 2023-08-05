@@ -1,51 +1,117 @@
-const User = require('./../models/user');
+const { User } = require('./../models');
 const Joi = require('joi');
+
+// DECLARE PASSPORT AUTH JSON WEBTOKEN BEARER SCHEMA
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const LocalStrategy = require('passport-local').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
+const secretKey = "sangat_very_secret_key_banget_sekali";
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  secretOrKey: secretKey,
+};
+
+passport.use(
+  new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+  }, async (email, password, done) => {
+    try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return done(null, false, { message: 'Email tidak ditemukan.' });
+      }
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return done(null, false, { message: 'Password salah.' });
+      }
+      return done(null, user);
+    } catch (error) {
+      return done(error);
+    }
+  })
+);
+
+passport.use(
+  new JwtStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: secretKey,
+  }, async (payload, done) => {
+    try {
+      const user = await User.findByPk(payload.id);
+      console.log(user);
+      if (!user) {
+        return done(null, false);
+      }
+      return done(null, user);
+    } catch (error) {
+      return done(error);
+    }
+  })
+);
+
+// CONTROLLER
 const userController = {
-  login: (req, res) => {
-    Joi.object({
+  login: (req, res, next) => {
+    const { error } = Joi.object({
       email: Joi.string().email().required(),
       password: Joi.string().required(),
-    }).validate(req.body).then(() => {
-      passport.authenticate('local', { session: false }, (err, user, info) => {
-        if (err || !user) {
-          // return res.status(400).json({ message: info.message });
-          return res.status(400).json({ message: info ? info.message : 'Kredensial tidak valid' });
+    }).validate(req.body);
+
+    if (error) {
+      return res.status(400).json(error);
+    }
+
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      console.log('Error:', err);
+      console.log('User:', user);
+      console.log('Info:', info);
+
+      if (err || !user) {
+        return res.status(400).json({ message: info ? info.message : 'Kredensial tidak valid' });
+      }
+      req.login(user, { session: false }, (err) => {
+        if (err) {
+          return res.status(500).json({ message: 'Terjadi kesalahan saat login.' });
         }
-        req.login(user, { session: false }, (err) => {
-          if (err) {
-            return res.status(500).json({ message: 'Terjadi kesalahan saat login.' });
-          }
-          redisClient.set(`user:${user.id}`, JSON.stringify(user), 'EX', 3600, (redisErr) => {
-            if (redisErr) {
-              console.error('Gagal menyimpan data di Redis:', redisErr);
-            }
-          });
-          user.dataValues.token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '1h' });
-          return res.status(200).json(user);
-        });
-      })(req, res, next);
-    }).catch((valErr) => {
-      return res.status(400).json(valErr);
-    });
+        // redisClient.set(`user:${user.id}`, JSON.stringify(user), 'EX', 3600, (redisErr) => {
+        //   if (redisErr) {
+        //     console.error('Gagal menyimpan data di Redis:', redisErr);
+        //   }
+        // });
+        user.dataValues.token = jwt.sign({ id: user.id }, secretKey, { expiresIn: '1h' });
+        return res.status(200).json(user);
+      });
+    })(req, res, next);
   },
-  register: async (req, res) => {
-    Joi.object({
+  register: async (req, res, next) => {
+    const { error } = Joi.object({
       name: Joi.string().required(),
       email: Joi.string().email().required(),
       password: Joi.string().required(),
-    }).validate(req.body).then(async () => {
-      const { name, email, password, role } = req.body;
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      try {
-        User.create({ name: name, email: email, password: hashedPassword, role: role, value: 0 })
-      } catch (error) {
-        console.error('Error Membuat User Baru: ', error);
-        res.status(500).json({ message: 'Error Membuat User Baru', error });
-      }
-    }).catch((valErr) => {
-      return res.status(400).json(valErr);
-    });
+    }).validate(req.body);
+
+    if (error) {
+      return res.status(400).json(error);
+    }
+
+    console.log(req.body);
+
+    const { name, email, password, role } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    try {
+      await User.create({ name, email, password: hashedPassword, role, value: 0 });
+      return res.status(201).json({ message: 'User berhasil dibuat.' });
+    } catch (error) {
+      console.error('Error Membuat User Baru: ', error);
+      return res.status(500).json({ message: 'Error Membuat User Baru', error });
+    }
   },
   getAuthUser: async (req, res) => {
     const authenticatedUser = req.user;
