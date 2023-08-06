@@ -173,11 +173,15 @@ const userController = {
   deleteUserById: async (req, res) => {
     try {
       if(req.user.id != req.body.id) {
-        const user = await User.destroy({ where: { id: req.params.id } });
-        if (user) {
-          res.status(200).json({ message: 'Dia udah diusir masbro' });
+        if(req.user.role == "teacher") {
+          const user = await User.destroy({ where: { id: req.params.id } });
+          if (user) {
+            res.status(200).json({ message: 'Dia udah diusir masbro' });
+          } else {
+            res.status(404).json({ message: 'Dia emang udah ngga ada masbro' });
+          }
         } else {
-          res.status(404).json({ message: 'Dia emang udah ngga ada masbro' });
+          res.status(401).json({ message: 'Lu cuma seorang murid, tidak menghapus sembarangan orang' });
         }
       } else {
         res.status(401).json({ message: 'Lu kaga bisa ngapus diri sendiri masbro' });
@@ -190,11 +194,15 @@ const userController = {
   deleteUserByEmail: async (req, res) => {
     try {
       if(req.user.email != req.body.email) {
-        const user = await User.destroy({ where: { email: req.params.email } });
-        if (user) {
-          res.status(200).json({ message: 'Dia udah diusir masbro' });
+        if(req.user.role == "teacher") {
+          const user = await User.destroy({ where: { email: req.params.email } });
+          if (user) {
+            res.status(200).json({ message: 'Dia udah diusir masbro' });
+          } else {
+            res.status(404).json({ message: 'Dia emang udah ngga ada masbro' });
+          }
         } else {
-          res.status(404).json({ message: 'Dia emang udah ngga ada masbro' });
+          res.status(401).json({ message: 'Lu cuma seorang murid, tidak menghapus sembarangan orang' });
         }
       } else {
         res.status(401).json({ message: 'Lu kaga bisa ngapus diri sendiri masbro' });
