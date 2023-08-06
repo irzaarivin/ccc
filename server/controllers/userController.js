@@ -67,10 +67,6 @@ const userController = {
     }
 
     passport.authenticate('local', { session: false }, (err, user, info) => {
-      console.log('Error:', err);
-      console.log('User:', user);
-      console.log('Info:', info);
-
       if (err || !user) {
         return res.status(400).json({ message: info ? info.message : 'Kredensial tidak valid' });
       }
