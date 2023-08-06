@@ -89,6 +89,7 @@ const userController = {
     })(req, res, next);
   },
   register: async (req, res, next) => {
+
     const { error } = Joi.object({
       name: Joi.string().required(),
       email: Joi.string().email().required(),
@@ -127,7 +128,7 @@ const userController = {
       if (updatedRowCount === 0) {
         res.status(404).json({ message: 'Dia ngga ada bang' });
       } else {
-        res.json(updatedUsers[0]);
+        res.json({ message: 'Berhasil diupdate' });
       }
     } catch (error) {
       console.error('Error updating user:', error);

@@ -91,25 +91,16 @@ passport.use(
 //   console.error('Gagal terkoneksi ke Redis:', err);
 // });
 
-// GROUPING AUTHENTICATED ROUTES
-// app.use('/auth', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-//   if (req.user) {
-//     next();
-//   } else {
-//     res.status(404).json({ message: 'Lah kaga ada user bang' });
-//   }
-// });
-
 // CRUD USERS
-app.post('/login', bodyParser.urlencoded({ extended: false }), userController.login);
-app.post('/create/user', bodyParser.urlencoded({ extended: false }), userController.register);
-app.get('/auth/me', userController.getAuthUser);
-app.put('/auth/me/update', userController.updateAuthUser);
+app.post('/login', userController.login);
+app.post('/create/user', passport.authenticate('jwt', { session: false }), userController.register);
+app.get('/auth/me', passport.authenticate('jwt', { session: false }), userController.getAuthUser);
+app.put('/auth/me/update', passport.authenticate('jwt', { session: false }), userController.updateAuthUser);
 app.get('/users', userController.getUsers);
 app.get('/users/:id', userController.getUserById);
 app.get('/users/email/:email', userController.getUserByEmail);
-app.delete('/auth/users/delete/:id', userController.deleteUserById);
-app.delete('/auth/users/delete/email/:email', userController.deleteUserByEmail);
+app.delete('/users/delete/:id', passport.authenticate('jwt', { session: false }), userController.deleteUserById);
+app.delete('/users/delete/email/:email', passport.authenticate('jwt', { session: false }), userController.deleteUserByEmail);
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
