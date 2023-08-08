@@ -6,6 +6,7 @@ app.use(cors());
 
 // DECLARE CONTROLLERS
 const userController = require('./controllers/userController');
+const groupController = require('./controllers/groupController');
 
 // DECLARE REDIS
 const redis = require('ioredis');
@@ -101,6 +102,12 @@ app.get('/users/:id', userController.getUserById);
 app.get('/users/email/:email', userController.getUserByEmail);
 app.delete('/users/delete/:id', passport.authenticate('jwt', { session: false }), userController.deleteUserById);
 app.delete('/users/delete/email/:email', passport.authenticate('jwt', { session: false }), userController.deleteUserByEmail);
+
+// CRUD GROUPS
+app.get('/groups', groupController.getGroups);
+app.post('/create/group', groupController.createGroup);
+app.post('/update/group', groupController.updateGroup);
+app.delete('/delete/group/:id', passport.authenticate('jwt', { session: false }), groupController.deleteGroup);
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
