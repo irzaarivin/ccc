@@ -15,6 +15,13 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
+      admin: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        }
+      },
       member: {
         type: Sequelize.STRING
       },

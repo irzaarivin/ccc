@@ -1,5 +1,6 @@
 const { User } = require('./../models');
 const Joi = require('joi');
+const { Op } = require('sequelize');
 
 // DECLARE PASSPORT AUTH JSON WEBTOKEN BEARER SCHEMA
 const passport = require('passport');
@@ -133,25 +134,50 @@ const userController = {
   },
   getUsers: async (req, res) => {
     try {
-      const users = await User.findAll();
-      res.json(users);
-    } catch (error) {
-      console.error('Error minta data users:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  },
-  getUsersByFilters: async (req, res) => {
+      let users = [];
+      let message = '';
+      
+      if (Object.keys(req.query).length === 0) {
+        users = await User.findAll();
+        message = 'All Users';
+      } else {
+        const whereClause = {};
 
-    if((!req.query.email) || (!req.query.name) || (!req.query.role) || (!req.query.value)) {
-      return res.status(400).json({message: 'Filter doesnt match'})
-    }
+        if (req.query.name) {
+          whereClause.name = { [Op.like]: `%${req.query.name}%` };
+        }
 
-    try {
-      const users = await User.findAll({
-        where: req.query
-      })
+        if (req.query.email) {
+          whereClause.email = req.query.email;
+        }
+
+        if (req.query.role) {
+          whereClause.role = req.query.role;
+        }
+
+        if (req.query.value) {
+          whereClause.value = req.query.value;
+        }
+
+        users = await User.findAll({
+          attributes: { exclude: ['password'] },
+          where: whereClause
+        });
+
+        if (users.length > 0) {
+          message = users.length + ' Users Found';
+        } else {
+          message = 'User Not Found';
+        }
+      }
+
+      return res.status(200).json({
+        message: message,
+        total: users.length,
+        data: users
+      });
     } catch (error) {
-      console.error('Error minta data users:', error);
+      console.error('Error requesting user data:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   },

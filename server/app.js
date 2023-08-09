@@ -44,25 +44,26 @@ db.sequelize.sync().then(() => {
 //   console.error('Gagal terkoneksi ke Redis:', err);
 // });
 
-// CRUD USERS
+// CRUD USERS - AUTHENTICATED
 app.post('/login', userController.login);
-app.post('/create/user', passport.authenticate('jwt', { session: false }), userController.register);
 app.get('/auth/me', passport.authenticate('jwt', { session: false }), userController.getAuthUser);
 app.put('/auth/me/update', passport.authenticate('jwt', { session: false }), userController.updateAuthUser);
+
+// CRUD USERS - GENERAL
+app.post('/create/user', passport.authenticate('jwt', { session: false }), userController.register);
 app.get('/users', userController.getUsers);
-app.get('/users/filters', userController.getUsersByFilters);
 app.get('/users/:id', userController.getUserById);
 app.get('/users/email/:email', userController.getUserByEmail);
 app.delete('/users/delete/:id', passport.authenticate('jwt', { session: false }), userController.deleteUserById);
 app.delete('/users/delete/email/:email', passport.authenticate('jwt', { session: false }), userController.deleteUserByEmail);
 
-// RUNNING SERVER
 // CRUD GROUPS
 app.get('/groups', groupController.getGroups);
-app.post('/create/group', groupController.createGroup);
-app.post('/update/group', groupController.updateGroup);
+app.post('/create/group', passport.authenticate('jwt', { session: false }), groupController.createGroup);
+app.put('/update/group', passport.authenticate('jwt', { session: false }), groupController.updateGroup);
 app.delete('/delete/group/:id', passport.authenticate('jwt', { session: false }), groupController.deleteGroup);
 
+// RUNNING SERVER
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });

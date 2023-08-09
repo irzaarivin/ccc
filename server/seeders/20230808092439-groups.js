@@ -6,6 +6,7 @@ module.exports = {
      await queryInterface.bulkInsert('Groups', [{
       name: 'Barudag Sunda Team',
       description: 'Grup untuk project Management Kementrian',
+      admin: 1,
       member: '123',
       createdAt: new Date(),
       updatedAt: new Date()
