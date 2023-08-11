@@ -140,6 +140,21 @@ const userController = {
       res.status(500).json({ message: 'Internal server error' });
     }
   },
+  getUsersByFilters: async (req, res) => {
+
+    if((!req.query.email) || (!req.query.name) || (!req.query.role) || (!req.query.value)) {
+      return res.status(400).json({message: 'Filter doesnt match'})
+    }
+
+    try {
+      const users = await User.findAll({
+        where: req.query
+      })
+    } catch (error) {
+      console.error('Error minta data users:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  },
   getUserById: async (req, res) => {
     try {
       const user = await User.findByPk(req.params.id);
