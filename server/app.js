@@ -7,6 +7,7 @@ app.use(cors());
 // DECLARE CONTROLLERS
 const userController = require('./controllers/userController');
 const groupController = require('./controllers/groupController');
+const projectController = require('./controllers/projectController');
 
 // DECLARE REDIS
 const redis = require('ioredis');
@@ -62,6 +63,9 @@ app.get('/groups', groupController.getGroups);
 app.post('/create/group', passport.authenticate('jwt', { session: false }), groupController.createGroup);
 app.put('/update/group', passport.authenticate('jwt', { session: false }), groupController.updateGroup);
 app.delete('/delete/group/:id', passport.authenticate('jwt', { session: false }), groupController.deleteGroup);
+
+// CRUD PROJECTS
+app.get('/projects', projectController.getProjects);
 
 // RUNNING SERVER
 app.listen(3000, () => {

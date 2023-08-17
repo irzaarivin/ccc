@@ -164,11 +164,8 @@ const userController = {
           where: whereClause
         });
 
-        if (users.length > 0) {
-          message = users.length + ' Users Found';
-        } else {
-          message = 'User Not Found';
-        }
+        users.length > 0 ? message = users.length + ' users found' : message = 'User not found';
+        
       }
 
       return res.status(200).json({
