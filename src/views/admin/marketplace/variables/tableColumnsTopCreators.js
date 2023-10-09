@@ -4,7 +4,7 @@ export const tableColumnsTopCreators = [
     accessor: "name",
   },
   {
-    Header: "Tasks",
+    Header: "Artworks",
     accessor: "artworks",
   },
   {

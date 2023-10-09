@@ -13,33 +13,32 @@ import SignIn from "views/auth/SignIn";
 // Icon Imports
 import {
   MdHome,
+  MdOutlineShoppingCart,
+  MdBarChart,
   MdPerson,
   MdLock,
-  MdGroups2,
 } from "react-icons/md";
-
-import { PiProjectorScreenChartFill } from "react-icons/pi";
 
 const routes = [
   {
-    name: "Dashboard",
+    name: "Main Dashboard",
     layout: "/admin",
     path: "default",
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboard />,
   },
   {
-    name: "Projects",
+    name: "NFT Marketplace",
     layout: "/admin",
     path: "nft-marketplace",
-    icon: <PiProjectorScreenChartFill className="h-6 w-6" />,
+    icon: <MdOutlineShoppingCart className="h-6 w-6" />,
     component: <NFTMarketplace />,
     secondary: true,
   },
   {
-    name: "Groups",
+    name: "Data Tables",
     layout: "/admin",
-    icon: <MdGroups2 className="h-6 w-6" />,
+    icon: <MdBarChart className="h-6 w-6" />,
     path: "data-tables",
     component: <DataTables />,
   },
